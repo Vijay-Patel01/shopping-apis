@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const db = require('../Model');
 const catchAsync = require('../utils/catchAsync');
 const appError = require('../utils/appError');
-const { log } = require('console');
 
 const User = db.users;
 

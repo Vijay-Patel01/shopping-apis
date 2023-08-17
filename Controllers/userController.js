@@ -62,7 +62,7 @@ const login = catchAsync(async (req, res, next) => {
     return next(new appError("Please provide a Password ", 400))
   }
   const user = await User.findOne({
-    where: { email }
+    where: { email },
   });
 
   if (!user) {
@@ -115,9 +115,27 @@ const changePassword = catchAsync(async (req, res, next) => {
   });
 });
 
+const updateUser = catchAsync(async (req, res, next) => {
+  const id = req.params.id;
+  const user = await User.update(req.body, {
+    where: {
+      id
+    }
+  });
+  if (!user) {
+    return next(new appError('User not found', 404));
+  }
+  res.status(200).json({
+    status: 'success',
+    message: 'User updated successfully',
+    data: user
+  });
+});
+
 module.exports = {
   signup,
   login,
   logout,
-  changePassword
+  changePassword,
+  updateUser
 };

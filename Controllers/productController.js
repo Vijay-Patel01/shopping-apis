@@ -4,7 +4,6 @@ const appError = require('../utils/appError');
 const fs = require('fs')
 const multer = require('multer');
 const sharp = require('sharp');
-const { log } = require('console');
 const { Sequelize } = require('sequelize');
 
 const Product = db.product;
@@ -53,30 +52,31 @@ const createProduct = catchAsync(async (req, res, next) => {
 });
 
 const getProducts = catchAsync(async (req, res, next) => {
-  const products = await Product.findAll({
-    // limit: 2,
-    // offset: 3,
-    where: { status: 'active' }
-  });
 
-  const Op = Sequelize.Op;
-  console.log(Op);
-  const test = await Product.findAll({
-    where: {
-      name: {
-        [Op.like]: '%2%'
-      }
-    }
+  const limit = req.query.limit || 10;
+  const offset = req.query.page - 1 || 0;
+  const like = req.query.name || '';
+  const price = req.query.price || 10000000;
+  const {count, rows} = await Product.findAndCountAll({
+    where: { status: 'active',
+            name: {
+                    [Sequelize.Op.like]: `%${like}%`
+                  },
+                  price: {
+                    [Sequelize.Op.lte]: price
+                  }
+          },
+    offset: `${offset}`,
+    limit: `${limit}`
   });
-  console.log(test);
-  // if (products == '') {
-  //   return next(new appError("Not found product", 404));
-  // }
+  const pages = Math.ceil(count / limit);
   res.status(200).json({
     status: 'success',
+    results: count,
     data: {
-      products
-    }
+      rows
+    },
+    totalPages: pages
   });
 });
 
@@ -85,17 +85,14 @@ const updateProduct = catchAsync(async (req, res, next) => {
   const oldProduct = await Product.findOne({
     where: { productId: id }
   });
-  console.log(0);
   if (req.file) {
     if (oldProduct.image !== '') {
       fs.unlink(`images/${oldProduct.image}`)
     };
   }
-  console.log(1);
   const productUpdate = await Product.update(req.body, {
     where: { productId: id }
   });
-  console.log(productUpdate);
   const product = await Product.findOne({
     where: { productId: id }
   });

@@ -17,9 +17,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-db.sequelize.sync({ force: true }).then(() => {
-  console.log("db has been re sync")
-})
+// db.sequelize.sync({ force: true }).then(() => {
+//   console.log("db has been re sync")
+// })
 
 app.use('/api/users', userRoute);
 app.use('/api/products', productRoute);

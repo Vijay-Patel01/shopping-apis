@@ -1,38 +1,24 @@
 module.exports = (sequelize, DataTypes) => {
-  const Product = sequelize.define('product', {
+  return sequelize.define('product', {
     productId: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
+      type: DataTypes.INTEGER().UNSIGNED,
       primaryKey: true,
       autoIncrement: true
     },
     name: {
       type: new DataTypes.STRING(),
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'Please enter your name'
-        }
-      }
     },
     description: {
       type: new DataTypes.TEXT()
     },
     price: {
-      type: DataTypes.DECIMAL(8),
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: "Price can't be empty"
-        }
-      }
+      type: DataTypes.DECIMAL(),
     },
     image: {
       type: new DataTypes.TEXT('long')
     },
     status: {
-      type: DataTypes.ENUM(['active', 'inactive']),
-      defaultValue: 'active'
+      type: DataTypes.STRING(),
     }
-  }, { timestamps: true },);
-  return Product;
+  }, { timestamps: true });
 }

@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const joi = require('joi');
 const db = require('../Model');
 const catchAsync = require('../utils/catchAsync');
 const appError = require('../utils/appError');
@@ -27,28 +28,37 @@ const createSendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: 'success',
     token,
-    data: {
-      user,
-    },
+    data: user
   });
 };
 
 
 const signup = catchAsync(async (req, res, next) => {
-  const password = req.body.password;
-  const confirmPassword = req.body.confirmPassword;
-  const hashPassword = await bcrypt.hash(password, 12);
-  const data = {
-    name: req.body.name,
-    email: req.body.email,
-    password: hashPassword,
-    role: req.body.role,
-    status: req.body.status,
-  };
-  if (password !== confirmPassword) {
-    return next(new appError(`Password is not same`, 401));
+
+  const body = joi.object({
+    name: joi.string().required(),
+    email: joi.string().required().email(),
+    password: joi.string().required().min(8),
+    confirmPassword: joi.string().valid(joi.ref('password')).required(),
+    role: joi.string().valid('admin', 'user').default('user'),
+    status: joi.string().valid('active', 'inactive').default('active')
+  });
+
+  const { error, value } = body.validate(req.body);
+  if (error) {
+    return next(new appError(error.details[0].message, 400));
   }
-  const newUser = await User.create(data);
+  const user = await User.findOne({
+    where: {
+      email: value.email
+    }
+  });
+  if (user) {
+    return next(new appError(`${value.email} already exists`, 400));
+  }
+  const hashPassword = await bcrypt.hash(value.password, 12);
+  value.password = hashPassword;
+  const newUser = await User.create(value);
   createSendToken(newUser, 201, res)
 });
 

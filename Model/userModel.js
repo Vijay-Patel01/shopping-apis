@@ -1,55 +1,25 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('user', {
+  return sequelize.define('user', {
     id: {
-      type: DataTypes.INTEGER(10).UNSIGNED,
+      type: DataTypes.INTEGER().UNSIGNED,
       primaryKey: true,
       autoIncrement: true
     },
     name: {
-      type: DataTypes.STRING(25),
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'Please enter your name'
-        }
-      }
+      type: DataTypes.STRING(),
     },
     email: {
-      type: DataTypes.STRING(364),
-      unique: {
-        arg: true,
-        msg: 'This email is already taken.'
-      },
-      allowNull: false,
-      validate: {
-        isEmail: {
-          args: true,
-          msg: "Invalid Email"
-        }
-      }
+      type: DataTypes.STRING(),
     },
     password: {
       type: DataTypes.STRING(),
-      allowNull: false,
-      max: {
-        args: [32],
-        msg: "Maximum 32 characters allowed in last name"
-      },
-      min: {
-        args: [8],
-        msg: "Minimum 8 characters required in last name"
-      }
-
     },
     role: {
-      type: DataTypes.ENUM("admin", "user"),
-      defaultValue: "user"
+      type: DataTypes.STRING(),
     },
     status: {
-      type: DataTypes.ENUM('active', 'inactive'),
-      defaultValue: 'active'
+      type: DataTypes.STRING(),
     }
   },
     { timestamps: true },);
-  return User;
 };

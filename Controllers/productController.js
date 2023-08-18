@@ -6,7 +6,6 @@ const joi = require('joi');
 const multer = require('multer');
 const sharp = require('sharp');
 const { Sequelize } = require('sequelize');
-const { log } = require('console');
 
 const Product = db.product;
 
